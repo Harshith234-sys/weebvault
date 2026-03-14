@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+
+  <!-- Vault Circle -->
+  <circle cx="40" cy="40" r="28" fill="#111827" stroke="#ff4d6d" stroke-width="4"></circle>
+
+  <!-- Vault Door Lines -->
+  <line x1="40" y1="15" x2="40" y2="65" stroke="#ff4d6d" stroke-width="2"></line>
+  <line x1="15" y1="40" x2="65" y2="40" stroke="#ff4d6d" stroke-width="2"></line>
+
+  <!-- Spark Star -->
+  <polygon points="40,22 44,34 56,34 46,41 50,53 40,45 30,53 34,41 24,34 36,34" fill="#ff4d6d" opacity="0.8"></polygon>
+
+</svg>

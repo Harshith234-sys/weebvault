@@ -22,7 +22,6 @@ const Login = () => {
         alignItems: "center"
       }}
     >
-      {/* TITLE */}
       <h1
         style={{
           color: "#d8b4ff",
@@ -35,8 +34,6 @@ const Login = () => {
       >
         WEEB VAULT
       </h1>
-
-      {/* LOGIN BOX */}
       <div
         style={{
           width: "360px",

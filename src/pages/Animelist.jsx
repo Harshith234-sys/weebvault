@@ -1,9 +1,16 @@
 import React from 'react';
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 import './Anime.css';
 
 const Animelist = () => {
-  const [current,setCurrent] = useState(0)
+  const [current,setCurrent] = useState(0);
+  useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrent(prev => (prev + 1) % 5)
+  }, 5000)
+
+  return () => clearInterval(timer)
+}, []);
   const trending = [
  { id: 1, title: "Naruto", cover: "https://cdn.myanimelist.net/images/anime/13/17405l.jpg", episodes: 220 },
 { id: 2, title: "One Piece", cover: "https://cdn.myanimelist.net/images/anime/6/73245l.jpg", episodes: 1100 },

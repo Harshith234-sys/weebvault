@@ -1,6 +1,7 @@
 import React from 'react';
 import {useState,useEffect} from 'react';
 import './Anime.css';
+import { getAnime } from '../services/api';
 
 const Animelist = () => {
   const [current,setCurrent] = useState(0);
@@ -11,13 +12,7 @@ const Animelist = () => {
 
   return () => clearInterval(timer)
 }, []);
-  const trending = [
- { id: 1, title: "Naruto", cover: "https://cdn.myanimelist.net/images/anime/13/17405l.jpg", episodes: 220 },
-{ id: 2, title: "One Piece", cover: "https://cdn.myanimelist.net/images/anime/6/73245l.jpg", episodes: 1100 },
-{ id: 3, title: "Jujutsu Kaisen", cover: "https://cdn.myanimelist.net/images/anime/1171/109222l.jpg", episodes: 24 },
-{ id: 4, title: "Demon Slayer", cover: "https://cdn.myanimelist.net/images/anime/1286/99889l.jpg", episodes: 26 },
-{ id: 5, title: "Attack on Titan", cover: "https://cdn.myanimelist.net/images/anime/10/47347l.jpg", episodes: 75 },
-];
+  
 const anime = trending[current];
   return (
       <div className="anime-container">

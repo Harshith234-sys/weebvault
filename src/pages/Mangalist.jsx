@@ -1,92 +1,369 @@
-import React from 'react';
-import { useState ,useEffect} from 'react';
-import './Manga.css';
+import React, { useState, useEffect } from "react";
+import "./Manga.css";
+import { getManga } from "../services/api";
 
 const Mangalist = () => {
-  const [current, setCurrent] = useState(0);
-  useEffect(() => {
-  const timer = setInterval(() => {
-    setCurrent(prev => (prev + 1) % manga.length)
-  }, 5000)
+    const [manga, setManga] = useState([]);
+    const [current, setCurrent] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-  return () => clearInterval(timer)
-}, [])
+    // ================================
+    // FETCH MANGA
+    // ================================
 
-const manga = [
-  { id: 1,  title: "Jujutsu Kaisen",                cover: "https://cdn.myanimelist.net/images/manga/3/210341l.jpg",  chapters: 265,  status: "Releasing", genres: ["Action", "Supernatural"] },
-  { id: 2,  title: "One Piece",                      cover: "https://cdn.myanimelist.net/images/manga/2/253146l.jpg",  chapters: 1110, status: "Releasing", genres: ["Adventure", "Fantasy"] },
-  { id: 3,  title: "Demon Slayer",                   cover: "https://cdn.myanimelist.net/images/manga/3/179023l.jpg",  chapters: 205,  status: "Completed", genres: ["Action", "Dark Fantasy"] },
-  { id: 4,  title: "Dragon Ball Super",              cover: "https://cdn.myanimelist.net/images/manga/1/267793l.jpg",  chapters: 104,  status: "Releasing", genres: ["Action", "Sci-Fi"] },
-  { id: 5,  title: "Chainsaw Man",                   cover: "https://cdn.myanimelist.net/images/manga/3/216464l.jpg",  chapters: 97,   status: "Releasing", genres: ["Action", "Horror"] },
-  { id: 6,  title: "Vagabond",                       cover: "https://cdn.myanimelist.net/images/manga/1/259070l.jpg",  chapters: 327,  status: "Hiatus",    genres: ["Action", "Historical"] },
-  { id: 7,  title: "Solo Leveling",                  cover: "https://cdn.myanimelist.net/images/manga/3/222295l.jpg",  chapters: 179,  status: "Completed", genres: ["Action", "Fantasy"],     type: "Manhwa" },
-  { id: 8,  title: "Tower of God",                   cover: "https://cdn.myanimelist.net/images/manga/2/175936l.jpg",  chapters: 600,  status: "Releasing", genres: ["Fantasy", "Adventure"],  type: "Manhwa" },
-  { id: 9,  title: "Omniscient Reader",              cover: "https://cdn.myanimelist.net/images/manga/1/274289l.jpg",  chapters: 180,  status: "Releasing", genres: ["Action", "Fantasy"],     type: "Manhwa" },
-  { id: 10, title: "Eleceed",                        cover: "https://cdn.myanimelist.net/images/manga/2/207291l.jpg",  chapters: 290,  status: "Releasing", genres: ["Action", "Comedy"],      type: "Manhwa" },
-  { id: 11, title: "Nano Machine",                   cover: "https://cdn.myanimelist.net/images/manga/1/267700l.jpg",  chapters: 220,  status: "Releasing", genres: ["Action", "Martial Arts"], type: "Manhwa" },
-  { id: 12, title: "Lookism",                        cover: "https://cdn.myanimelist.net/images/manga/2/194697l.jpg",  chapters: 470,  status: "Releasing", genres: ["Action", "Slice of Life"], type: "Manhwa" },
-];
+    useEffect(() => {
+        const fetchManga = async () => {
+            try {
+                const data = await getManga();
 
-  const current_manga = manga[current];
+                setManga(data.data || []);
+            } catch (error) {
+                console.error("Manga fetch error:", error);
+                setError("Failed to load manga");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-  return (
-    <div className="manga-container">
-      <div className="manga-carousel">
-      <button className="manga-prev" onClick={() => setCurrent((current - 1 + manga.length) % manga.length)}>‹</button>
+        fetchManga();
+    }, []);
 
-        <div className="manga-cards">
-  {[0, 1, 2].map(offset => {
-    const index = (current + offset) % manga.length;
-    const m = manga[index];
+
+    // ================================
+    // CAROUSEL
+    // ================================
+
+    useEffect(() => {
+        if (!manga.length) return;
+
+        const timer = setInterval(() => {
+            setCurrent(
+                (prev) => (prev + 1) % manga.length
+            );
+        }, 5000);
+
+        return () => clearInterval(timer);
+    }, [manga]);
+
+
+    // ================================
+    // LOADING
+    // ================================
+
+    if (loading) {
+        return <div>Loading manga...</div>;
+    }
+
+
+    // ================================
+    // ERROR
+    // ================================
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+
+    // ================================
+    // EMPTY
+    // ================================
+
+    if (!manga.length) {
+        return <div>No manga found</div>;
+    }
+
+
+    // MAL response:
+    // data → node → manga information
+
+    const currentManga = manga[current]?.node;
+
+
+    // ================================
+    // BOOKMARK
+    // ================================
+
+    const handleBookmark = async () => {
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            alert("Please login first");
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:5000/api/library",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+                        mediaId: currentManga.id,
+                        type: "manga",
+                        title: currentManga.title,
+                        status: "plan_to_read",
+                        currentChapter: 0,
+                        currentPage: 0,
+                        rating: null,
+                        favorite: false
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(
+                    data.message ||
+                    "Failed to add manga"
+                );
+                return;
+            }
+
+            alert("Added to your library!");
+
+            console.log(
+                "Library entry:",
+                data.libraryEntry
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Bookmark error:",
+                error
+            );
+
+            alert(
+                "Failed to connect to server"
+            );
+        }
+    };
+
+
     return (
-      <div className="manga-card" key={m.id}>
-        <div className="manga-card-text">
-          <span className="manga-status">{m.status}</span>
-          <h3 className="manga-card-title">{m.title}</h3>
-          <p className="manga-card-desc">Chapter {m.chapters}</p>
-          <div className="manga-genres">
-            {m.genres.map(g => (
-              <span key={g} className="manga-genre">{g}</span>
-            ))}
-          </div>
+        <div className="manga-container">
+
+
+            {/* ================================
+                CAROUSEL
+            ================================= */}
+
+            <div className="manga-carousel">
+
+                <button
+                    className="manga-prev"
+                    onClick={() =>
+                        setCurrent(
+                            (current - 1 + manga.length) %
+                            manga.length
+                        )
+                    }
+                >
+                    ‹
+                </button>
+
+
+                <div className="manga-cards">
+
+                    {[0, 1, 2].map((offset) => {
+
+                        const index =
+                            (current + offset) %
+                            manga.length;
+
+                        const item = manga[index];
+
+                        const m = item.node;
+
+                        return (
+
+                            <div
+                                className="manga-card"
+                                key={m.id}
+                            >
+
+                                <div className="manga-card-text">
+
+                                    <span className="manga-status">
+                                        {m.status || "Unknown"}
+                                    </span>
+
+                                    <h3 className="manga-card-title">
+                                        {m.title}
+                                    </h3>
+
+                                    <p className="manga-card-desc">
+                                        Chapter{" "}
+                                        {m.num_chapters || "N/A"}
+                                    </p>
+
+                                    <div className="manga-genres">
+
+                                        {(m.genres || [])
+                                            .slice(0, 3)
+                                            .map((genre) => (
+
+                                                <span
+                                                    key={genre.id}
+                                                    className="manga-genre"
+                                                >
+                                                    {genre.name}
+                                                </span>
+
+                                            ))}
+
+                                    </div>
+
+                                </div>
+
+
+                                <img
+                                    src={
+                                        m.main_picture?.large ||
+                                        m.main_picture?.medium
+                                    }
+                                    alt={m.title}
+                                    className="manga-card-img"
+                                />
+
+                            </div>
+
+                        );
+                    })}
+
+                </div>
+
+
+                <button
+                    className="manga-next"
+                    onClick={() =>
+                        setCurrent(
+                            (current + 1) %
+                            manga.length
+                        )
+                    }
+                >
+                    ›
+                </button>
+
+            </div>
+
+
+            {/* ================================
+                MOST VIEWED
+            ================================= */}
+
+            <div className="most-viewed">
+
+                <h2>Most Viewed</h2>
+
+                <div className="most-viewed-row">
+
+                    {manga.map((item, index) => {
+
+                        const m = item.node;
+
+                        return (
+
+                            <div
+                                className="most-viewed-card"
+                                key={m.id}
+                            >
+
+                                <img
+                                    src={
+                                        m.main_picture?.large ||
+                                        m.main_picture?.medium
+                                    }
+                                    alt={m.title}
+                                />
+
+                                <span className="most-viewed-rank">
+                                    {index + 1}
+                                </span>
+
+                                <p>
+                                    {m.title}
+                                </p>
+
+                            </div>
+
+                        );
+
+                    })}
+
+                </div>
+
+            </div>
+
+
+            {/* ================================
+                CONTINUE READING
+            ================================= */}
+
+            <div className="continue-reading">
+
+                <h2>Continue Reading</h2>
+
+                <div className="reading-list">
+
+                    <div className="reading-card">
+
+                        <img
+                            src={
+                                currentManga.main_picture?.large ||
+                                currentManga.main_picture?.medium
+                            }
+                            alt={currentManga.title}
+                        />
+
+                        <div className="reading-info">
+
+                            <span className="reading-type">
+                                Manga
+                            </span>
+
+                            <p className="reading-title">
+                                {currentManga.title}
+                            </p>
+
+                            <p className="reading-progress">
+                                Chapter 1 /{" "}
+                                {currentManga.num_chapters || "N/A"}
+                            </p>
+
+                            <button
+                                className="resume-btn"
+                            >
+                                ▶ Continue Reading
+                            </button>
+
+                            <button
+                                className="bookmark"
+                                onClick={handleBookmark}
+                            >
+                                Bookmark
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-        <img src={m.cover} alt={m.title} className="manga-card-img" />
-      </div>
     );
-  })}
-</div>
-
-        <button className="manga-next" onClick={() => setCurrent((current + 1) % manga.length)}>›</button>
-      </div>
-      <div className="most-viewed">
-        <h2>Most Viewed</h2>
-        <div className="most-viewed-row">
-          {manga.map((m, index) => (
-            <div className="most-viewed-card" key={m.id}>
-              <img src={m.cover} alt={m.title} />
-              <span className="most-viewed-rank">{index + 1}</span>
-              <p>{m.title}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="continue-reading">
-        <h2>Continue Reading</h2>
-        <div className="reading-list">
-          <div className="reading-card">
-            <img src={current_manga.cover} alt={current_manga.title} />
-            <div className="reading-info">
-              <span className="reading-type">Manga</span>
-              <p className="reading-title">{current_manga.title}</p>
-              <p className="reading-progress">Chapter 1 / {current_manga.chapters}</p>
-              <button className="resume-btn">▶ Continue Reading</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  );
 };
 
 export default Mangalist;

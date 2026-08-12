@@ -4,7 +4,7 @@ import bg from "../images/bg.jpg";
 const Choice = () => {
   const navigate = useNavigate();
   const handleAnime = () => {
-    navigate("/AnimeList");
+    navigate("/Animelist");
   }
   const handleManga = () => {
     navigate("/Mangalist");

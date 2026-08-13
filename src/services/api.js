@@ -1,120 +1,131 @@
 const API_URL = "http://localhost:5000/api";
 
+// ANIME - TOP
 
-// ========================================
-// ANIME
-// ========================================
 
 export const getAnime = async () => {
-
-    const response = await fetch(
-        `${API_URL}/anime`
-    );
+    const response = await fetch(`${API_URL}/anime`);
 
     if (!response.ok) {
-        throw new Error(
-            "Failed to fetch anime"
-        );
+        throw new Error("Failed to fetch anime");
     }
 
     return response.json();
 };
 
 
-// ========================================
-// MANGA
-// ========================================
 
-export const getManga = async () => {
+// ANIME - AIRING / CURRENT SEASON
 
-    const response = await fetch(
-        `${API_URL}/manga`
-    );
+
+export const getAiringAnime = async () => {
+    const response = await fetch(`${API_URL}/anime/airing`);
 
     if (!response.ok) {
-        throw new Error(
-            "Failed to fetch manga"
-        );
+        throw new Error("Failed to fetch airing anime");
     }
 
     return response.json();
 };
 
 
-// ========================================
-// ANIME SEARCH
-// ========================================
+
+// ANIME - SEARCH
+
 
 export const searchAnime = async (query) => {
-
     const response = await fetch(
         `${API_URL}/anime/search?q=${encodeURIComponent(query)}`
     );
 
     if (!response.ok) {
-        throw new Error(
-            "Failed to search anime"
-        );
+        throw new Error("Failed to search anime");
     }
 
     return response.json();
 };
 
 
-// ========================================
-// MANGA SEARCH
-// ========================================
+// ANIME - DETAILS
 
-export const searchManga = async (query) => {
-
-    const response = await fetch(
-        `${API_URL}/manga/search?q=${encodeURIComponent(query)}`
-    );
-
-    if (!response.ok) {
-        throw new Error(
-            "Failed to search manga"
-        );
-    }
-
-    return response.json();
-};
-
-
-// ========================================
-// ANIME DETAILS
-// ========================================
 
 export const getAnimeDetails = async (id) => {
-
     const response = await fetch(
         `${API_URL}/anime/${id}`
     );
 
     if (!response.ok) {
-        throw new Error(
-            "Failed to fetch anime details"
-        );
+        throw new Error("Failed to fetch anime details");
+    }
+
+    return response.json();
+};
+
+// MANGA - TOP
+
+export const getManga = async () => {
+    const response = await fetch(`${API_URL}/manga`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch manga");
     }
 
     return response.json();
 };
 
 
-// ========================================
-// MANGA DETAILS
-// ========================================
+
+// MANGA - SEARCH
+
+
+export const searchManga = async (query) => {
+    const response = await fetch(
+        `${API_URL}/manga/search?q=${encodeURIComponent(query)}`
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to search manga");
+    }
+
+    return response.json();
+};
+
+
+
+// MANGA - DETAILS
+
 
 export const getMangaDetails = async (id) => {
-
     const response = await fetch(
         `${API_URL}/manga/${id}`
     );
 
     if (!response.ok) {
-        throw new Error(
-            "Failed to fetch manga details"
-        );
+        throw new Error("Failed to fetch manga details");
+    }
+
+    return response.json();
+};
+// LIBRARY
+
+export const getLibrary = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        throw new Error("Please login first");
+    }
+
+    const response = await fetch(
+        `${API_URL}/library`,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch library");
     }
 
     return response.json();

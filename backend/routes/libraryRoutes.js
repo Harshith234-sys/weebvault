@@ -10,9 +10,14 @@ router.post("/", authMiddleware, async (req, res) => {
             mediaId,
             type,
             title,
+            image,
             status,
-            progress,
-            rating
+            currentEpisode,
+            watchTimestamp,
+            currentChapter,
+            currentPage,
+            rating,
+            favorite
         } = req.body;
 
         if (!mediaId || !type || !title || !status) {
@@ -38,9 +43,14 @@ router.post("/", authMiddleware, async (req, res) => {
             mediaId,
             type,
             title,
+            image: image ?? null,
             status,
-            progress,
-            rating
+            currentEpisode: currentEpisode ?? 0,
+            watchTimestamp: watchTimestamp ?? 0,
+            currentChapter: currentChapter ?? 0,
+            currentPage: currentPage ?? 0,
+            rating: rating ?? null,
+            favorite: favorite ?? false
         });
 
         res.status(201).json({
@@ -56,10 +66,38 @@ router.post("/", authMiddleware, async (req, res) => {
         });
     }
 });
+
+router.get("/", authMiddleware, async (req, res) => {
+    try {
+        const library = await Library.find({
+            userId: req.userId
+        }).sort({ createdAt: -1 });
+
+        res.json({
+            library
+        });
+
+    } catch (error) {
+        console.error("Get library error:", error.message);
+
+        res.status(500).json({
+            message: "Failed to fetch library"
+        });
+    }
+});
+
 router.put("/:id", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, progress, rating } = req.body;
+        const {
+            status,
+            currentEpisode,
+            watchTimestamp,
+            currentChapter,
+            currentPage,
+            rating,
+            favorite
+        } = req.body;
 
         const libraryEntry = await Library.findOne({
             _id: id,
@@ -76,12 +114,28 @@ router.put("/:id", authMiddleware, async (req, res) => {
             libraryEntry.status = status;
         }
 
-        if (progress !== undefined) {
-            libraryEntry.progress = progress;
+        if (currentEpisode !== undefined) {
+            libraryEntry.currentEpisode = currentEpisode;
+        }
+
+        if (watchTimestamp !== undefined) {
+            libraryEntry.watchTimestamp = watchTimestamp;
+        }
+
+        if (currentChapter !== undefined) {
+            libraryEntry.currentChapter = currentChapter;
+        }
+
+        if (currentPage !== undefined) {
+            libraryEntry.currentPage = currentPage;
         }
 
         if (rating !== undefined) {
             libraryEntry.rating = rating;
+        }
+
+        if (favorite !== undefined) {
+            libraryEntry.favorite = favorite;
         }
 
         await libraryEntry.save();
@@ -99,6 +153,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
         });
     }
 });
+
 router.delete("/:id", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;

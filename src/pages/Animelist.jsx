@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./Anime.css";
-import { getAnime } from "../services/api";
+import { getAnime, getLibrary } from "../services/api";
 
 const Animelist = () => {
     const [trending, setTrending] = useState([]);
+    const [library, setLibrary] = useState([]);
     const [current, setCurrent] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -26,6 +27,20 @@ const Animelist = () => {
     }, []);
 
     useEffect(() => {
+        const fetchLibrary = async () => {
+            try {
+                const data = await getLibrary();
+
+                setLibrary(data.library || []);
+            } catch (error) {
+                console.error("Library fetch error:", error);
+            }
+        };
+
+        fetchLibrary();
+    }, []);
+
+    useEffect(() => {
         if (!trending.length) return;
 
         const timer = setInterval(() => {
@@ -37,46 +52,33 @@ const Animelist = () => {
         return () => clearInterval(timer);
     }, [trending]);
 
-
-    // ================================
-    // LOADING
-    // ================================
+    // Loading
 
     if (loading) {
         return <div>Loading anime...</div>;
     }
 
-
-    // ================================
-    // ERROR
-    // ================================
+    // Error
 
     if (error) {
         return <div>{error}</div>;
     }
 
-
-    // ================================
-    // EMPTY
-    // ================================
+    // Empty
 
     if (!trending.length) {
         return <div>No anime found</div>;
     }
 
-
     const anime = trending[current];
 
     // MAL data is inside anime.node
+
     const animeData = anime.node;
 
-
-    // ================================
-    // BOOKMARK
-    // ================================
+    // Bookmark
 
     const handleBookmark = async () => {
-
         const token = localStorage.getItem("token");
 
         if (!token) {
@@ -85,7 +87,6 @@ const Animelist = () => {
         }
 
         try {
-
             const response = await fetch(
                 "http://localhost:5000/api/library",
                 {
@@ -127,7 +128,6 @@ const Animelist = () => {
             );
 
         } catch (error) {
-
             console.error(
                 "Bookmark error:",
                 error
@@ -139,12 +139,16 @@ const Animelist = () => {
         }
     };
 
+const continueWatching = library.filter(
+    (item) =>
+        item.type === "anime" &&
+        item.status === "watching"
+);
 
     return (
         <div className="anime-container">
 
-
-            {/* ================= CAROUSEL ================= */}
+            {/* CAROUSEL */}
 
             <div className="anime-carousel">
 
@@ -182,7 +186,6 @@ const Animelist = () => {
 
                 </div>
 
-
                 {/* Previous */}
 
                 <button
@@ -196,7 +199,6 @@ const Animelist = () => {
                 >
                     ‹
                 </button>
-
 
                 {/* Next */}
 
@@ -214,8 +216,7 @@ const Animelist = () => {
 
             </div>
 
-
-            {/* ================= TRENDING ================= */}
+            {/* TRENDING */}
 
             <div className="trending-anime">
 
@@ -258,48 +259,59 @@ const Animelist = () => {
 
             </div>
 
+{/* CONTINUE WATCHING */}
 
-            {/* ================= CONTINUE WATCHING ================= */}
+<div className="continue-watching">
 
-            <div className="continue-watching">
+    <h2>Continue Watching</h2>
 
-                <h2>Continue Watching</h2>
+    <div className="continue-list">
 
-                <div className="continue-list">
+        {continueWatching.length === 0 ? (
 
-                    <div className="continue-card">
+            <p>
+                No anime currently being watched.
+            </p>
 
-                        <img
-                            src={
-                                animeData.main_picture?.large ||
-                                animeData.main_picture?.medium
-                            }
-                            alt={animeData.title}
-                        />
+        ) : (
 
-                        <div className="continue-info">
+            continueWatching.map((item) => (
 
-                            <p className="continue-title">
-                                {animeData.title}
-                            </p>
+                <div
+                    className="continue-card"
+                    key={item._id}
+                >
 
-                            <p className="continue-eps">
-                                Episode 1 /{" "}
-                                {animeData.num_episodes || "N/A"}
-                            </p>
+                    <img
+                        src={item.image}
+                        alt={item.title}
+                    />
 
-                            <button className="resume-btn">
-                                ▶ Resume
-                            </button>
+                    <div className="continue-info">
 
-                        </div>
+                        <p className="continue-title">
+                            {item.title}
+                        </p>
+
+                        <p className="continue-eps">
+                            Episode {item.currentEpisode || 0}
+                        </p>
+
+                        <button className="resume-btn">
+                            ▶ Resume
+                        </button>
 
                     </div>
 
                 </div>
 
-            </div>
+            ))
 
+        )}
+
+    </div>
+
+</div>
         </div>
     );
 };

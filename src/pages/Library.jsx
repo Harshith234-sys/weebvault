@@ -159,7 +159,7 @@ function LibrarySection({ title, entries, media, statuses, savingId, onUpdate, o
                                             saving={savingId === entry._id}
                                             onUpdate={onUpdate}
                                             onRemove={onRemove}
-                                            key={entry._id}
+                                            key={`${entry._id}-${entry.currentEpisode}-${entry.currentChapter}-${entry.currentPage}`}
                                         />
                                     ))}
                                 </div>
@@ -177,6 +177,33 @@ function LibraryCard({ entry, item, statuses, saving, onUpdate, onRemove }) {
     const picture = item?.main_picture?.large || item?.main_picture?.medium;
     const total = isAnime ? item?.num_episodes : item?.num_chapters;
     const current = isAnime ? entry.currentEpisode : entry.currentChapter;
+    const [episodeValue, setEpisodeValue] = useState(String(entry.currentEpisode ?? 0));
+    const [chapterValue, setChapterValue] = useState(String(entry.currentChapter ?? 0));
+    const [pageValue, setPageValue] = useState(String(entry.currentPage ?? 0));
+    const [progressError, setProgressError] = useState("");
+
+    const saveProgress = (field, value, label) => {
+        const progress = Number(value);
+
+        if (!Number.isInteger(progress) || progress < 0) {
+            setProgressError(`${label} must be a whole number of zero or more.`);
+            return;
+        }
+
+        if (total > 0 && field !== "currentPage" && progress > total) {
+            setProgressError(`${label} cannot be higher than ${total}.`);
+            return;
+        }
+
+        setProgressError("");
+        if (progress !== (entry[field] ?? 0)) {
+            onUpdate(entry, { [field]: progress });
+        }
+    };
+
+    const saveOnEnter = (event) => {
+        if (event.key === "Enter") event.currentTarget.blur();
+    };
 
     return (
         <article className="library-card">
@@ -208,11 +235,12 @@ function LibraryCard({ entry, item, statuses, saving, onUpdate, onRemove }) {
                         <input
                             type="number"
                             min="0"
-                            value={current || 0}
+                            max={total > 0 ? total : undefined}
+                            value={isAnime ? episodeValue : chapterValue}
                             disabled={saving}
-                            onChange={(event) => onUpdate(entry, {
-                                [isAnime ? "currentEpisode" : "currentChapter"]: Number(event.target.value)
-                            })}
+                            onChange={(event) => (isAnime ? setEpisodeValue(event.target.value) : setChapterValue(event.target.value))}
+                            onBlur={(event) => saveProgress(isAnime ? "currentEpisode" : "currentChapter", event.target.value, isAnime ? "Episode" : "Chapter")}
+                            onKeyDown={saveOnEnter}
                         />
                     </label>
                     {!isAnime && (
@@ -221,9 +249,11 @@ function LibraryCard({ entry, item, statuses, saving, onUpdate, onRemove }) {
                             <input
                                 type="number"
                                 min="0"
-                                value={entry.currentPage || 0}
+                                value={pageValue}
                                 disabled={saving}
-                                onChange={(event) => onUpdate(entry, { currentPage: Number(event.target.value) })}
+                                onChange={(event) => setPageValue(event.target.value)}
+                                onBlur={(event) => saveProgress("currentPage", event.target.value, "Page")}
+                                onKeyDown={saveOnEnter}
                             />
                         </label>
                     )}
@@ -254,6 +284,7 @@ function LibraryCard({ entry, item, statuses, saving, onUpdate, onRemove }) {
                     </button>
                     <button className="remove" disabled={saving} onClick={() => onRemove(entry)}>Remove</button>
                 </div>
+                {progressError && <p className="library-progress-error" role="alert">{progressError}</p>}
             </div>
         </article>
     );

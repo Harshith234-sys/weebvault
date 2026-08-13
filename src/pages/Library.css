@@ -41,6 +41,7 @@
 .favorite.active { background: #6d28d9; color: #fff; }
 .remove { background: transparent; color: #fca5a5; border: 1px solid #7f1d1d !important; }
 .library-actions button:disabled, .library-card input:disabled, .library-card select:disabled { opacity: .55; cursor: wait; }
+.library-progress-error { margin: 9px 0 0; color: #fca5a5; font-size: .72rem; }
 
 @media (max-width: 640px) {
   .library-page { padding: 28px 20px 48px; }

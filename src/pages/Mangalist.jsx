@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Manga.css";
-import { getLibrary, getManga, getMangaDetails } from "../services/api";
+import { addToLibrary, getLibrary, getManga, getMangaDetails } from "../services/api";
 
 const Mangalist = () => {
     const [manga, setManga] = useState([]);
@@ -59,6 +59,25 @@ const Mangalist = () => {
     if (error) return <div>{error}</div>;
     if (!manga.length) return <div>No manga found</div>;
 
+    const handleBookmark = async (item) => {
+        try {
+            await addToLibrary({
+                mediaId: item.id,
+                type: "manga",
+                title: item.title,
+                status: "plan_to_read",
+                currentChapter: 0,
+                currentPage: 0,
+                rating: null,
+                favorite: false
+            });
+            window.alert("Added to your library!");
+        } catch (bookmarkError) {
+            console.error("Manga bookmark error:", bookmarkError);
+            window.alert(bookmarkError.message || "Failed to add manga");
+        }
+    };
+
     return (
         <div className="manga-container">
             <div className="manga-carousel">
@@ -73,6 +92,7 @@ const Mangalist = () => {
                                     <h3 className="manga-card-title">{item.title}</h3>
                                     <p className="manga-card-desc">Chapter {item.num_chapters || "N/A"}</p>
                                     <div className="manga-genres">{(item.genres || []).slice(0, 3).map((genre) => <span key={genre.id} className="manga-genre">{genre.name}</span>)}</div>
+                                    <button className="manga-bookmark" type="button" onClick={() => handleBookmark(item)}>Bookmark</button>
                                 </div>
                                 <img src={item.main_picture?.large || item.main_picture?.medium} alt={item.title} className="manga-card-img" />
                             </div>

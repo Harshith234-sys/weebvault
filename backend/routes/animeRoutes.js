@@ -154,6 +154,9 @@ router.get("/:id", async (req, res) => {
         const response = await axios.get(
             `${MAL_URL}/anime/${id}`,
             {
+                params: {
+                    fields: "id,title,main_picture,num_episodes"
+                },
                 headers: {
                     "X-MAL-CLIENT-ID": process.env.MAL_CLIENT_ID
                 }

@@ -256,3 +256,22 @@
 .resume-btn:hover {
   transform: translateY(-2px);
 }
+
+.reading-cover-unavailable {
+  width: 55px;
+  height: 78px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  background: #252536;
+  color: #aaa;
+  font-size: .65rem;
+  text-align: center;
+}
+
+.reading-empty {
+  margin: 0;
+  color: #94a3b8;
+}

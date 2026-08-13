@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./Anime.css";
 import { addToLibrary, getAnime, getAnimeDetails, getLibrary } from "../services/api";
 
@@ -112,11 +113,11 @@ const Animelist = () => {
                     {trending.map((item, index) => {
                         const anime = item.node;
                         return (
-                            <div className="trend-card" key={anime.id}>
+                            <Link className="trend-card" to={`/anime/${anime.id}`} key={anime.id}>
                                 <img src={anime.main_picture?.large || anime.main_picture?.medium} alt={anime.title} />
                                 <span className="rank">{String(index + 1).padStart(2, "0")}</span>
                                 <p>{anime.title}</p>
-                            </div>
+                            </Link>
                         );
                     })}
                 </div>

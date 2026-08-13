@@ -129,6 +129,8 @@
   width: 140px;
   cursor: pointer;
   position: relative;
+  color: inherit;
+  text-decoration: none;
 }
 
 .trend-card img {

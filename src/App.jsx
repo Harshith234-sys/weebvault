@@ -6,6 +6,7 @@ import Choice from "./pages/Choice";
 import Animelist from "./pages/Animelist";
 import Mangalist from "./pages/Mangalist";
 import Library from "./pages/Library";
+import AnimeDetails from "./pages/AnimeDetails";
 import Navbar from "./components/Navbar";
 import './index.css';
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/Animelist" element = {<Animelist/>} />
         <Route path="/Mangalist" element = {<Mangalist/>} />
         <Route path="/library" element={<Library />} />
+        <Route path="/anime/:id" element={<AnimeDetails />} />
       </Routes>
     </Router>
   );

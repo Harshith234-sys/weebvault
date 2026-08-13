@@ -155,7 +155,7 @@ router.get("/:id", async (req, res) => {
             `${MAL_URL}/anime/${id}`,
             {
                 params: {
-                    fields: "id,title,main_picture,num_episodes"
+                    fields: "id,title,alternative_titles,main_picture,synopsis,mean,rank,popularity,status,num_episodes,average_episode_duration,genres,start_season"
                 },
                 headers: {
                     "X-MAL-CLIENT-ID": process.env.MAL_CLIENT_ID

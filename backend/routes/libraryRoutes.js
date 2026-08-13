@@ -4,6 +4,13 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+const validStatusesByType = {
+    anime: ["watching", "completed", "plan_to_watch", "on_hold", "dropped"],
+    manga: ["reading", "completed", "plan_to_read", "on_hold", "dropped"]
+};
+
+const hasValidStatus = (type, status) => validStatusesByType[type]?.includes(status);
+
 router.post("/", authMiddleware, async (req, res) => {
     try {
         const {
@@ -23,6 +30,12 @@ router.post("/", authMiddleware, async (req, res) => {
         if (!mediaId || !type || !title || !status) {
             return res.status(400).json({
                 message: "Required fields are missing"
+            });
+        }
+
+        if (!hasValidStatus(type, status)) {
+            return res.status(400).json({
+                message: "Status is not valid for this media type"
             });
         }
 
@@ -111,6 +124,11 @@ router.put("/:id", authMiddleware, async (req, res) => {
         }
 
         if (status !== undefined) {
+            if (!hasValidStatus(libraryEntry.type, status)) {
+                return res.status(400).json({
+                    message: "Status is not valid for this media type"
+                });
+            }
             libraryEntry.status = status;
         }
 

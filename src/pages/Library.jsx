@@ -8,8 +8,8 @@ import {
 } from "../services/api";
 import "./Library.css";
 
-const animeStatuses = ["watching", "completed", "plan_to_watch", "dropped"];
-const mangaStatuses = ["reading", "completed", "plan_to_read", "dropped"];
+const animeStatuses = ["watching", "completed", "plan_to_watch", "on_hold", "dropped"];
+const mangaStatuses = ["reading", "completed", "plan_to_read", "on_hold", "dropped"];
 
 const statusLabel = (status) => status.replaceAll("_", " ");
 

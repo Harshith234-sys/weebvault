@@ -33,6 +33,7 @@ const librarySchema = new mongoose.Schema(
                 "completed",
                 "plan_to_watch",
                 "plan_to_read",
+                "on_hold",
                 "dropped"
             ],
             required: true

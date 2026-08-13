@@ -102,6 +102,16 @@ function Navbar() {
                     >
                         Manga List
                     </Link>
+
+                    <Link
+                        to="/library"
+                        style={{
+                            color: "white",
+                            textDecoration: "none",
+                        }}
+                    >
+                        My Library
+                    </Link>
                 </div>
 
                 <div

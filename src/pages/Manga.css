@@ -82,6 +82,11 @@
   text-decoration: underline;
 }
 
+.manga-card-title a, .most-viewed-card {
+  color: inherit;
+  text-decoration: none;
+}
+
 .manga-bookmark {
   width: fit-content;
   margin-top: 4px;

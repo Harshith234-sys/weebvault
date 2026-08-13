@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./Manga.css";
 import { addToLibrary, getLibrary, getManga, getMangaDetails } from "../services/api";
 
@@ -89,7 +90,7 @@ const Mangalist = () => {
                             <div className="manga-card" key={item.id}>
                                 <div className="manga-card-text">
                                     <span className="manga-status">{item.status || "Unknown"}</span>
-                                    <h3 className="manga-card-title">{item.title}</h3>
+                                    <h3 className="manga-card-title"><Link to={`/manga/${item.id}`}>{item.title}</Link></h3>
                                     <p className="manga-card-desc">Chapter {item.num_chapters || "N/A"}</p>
                                     <div className="manga-genres">{(item.genres || []).slice(0, 3).map((genre) => <span key={genre.id} className="manga-genre">{genre.name}</span>)}</div>
                                     <button className="manga-bookmark" type="button" onClick={() => handleBookmark(item)}>Bookmark</button>
@@ -108,11 +109,11 @@ const Mangalist = () => {
                     {manga.map((entry, index) => {
                         const item = entry.node;
                         return (
-                            <div className="most-viewed-card" key={item.id}>
+                            <Link className="most-viewed-card" to={`/manga/${item.id}`} key={item.id}>
                                 <img src={item.main_picture?.large || item.main_picture?.medium} alt={item.title} />
                                 <span className="most-viewed-rank">{index + 1}</span>
                                 <p>{item.title}</p>
-                            </div>
+                            </Link>
                         );
                     })}
                 </div>

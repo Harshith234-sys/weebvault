@@ -107,7 +107,7 @@ router.get("/:id", async (req, res) => {
     try {
         const response = await malClient.get(`/manga/${req.params.id}`, {
             params: {
-                fields: "id,title,main_picture,num_chapters,num_volumes,status,mean,rank,popularity,genres,synopsis"
+                fields: "id,title,alternative_titles,main_picture,num_chapters,num_volumes,status,mean,rank,popularity,genres,synopsis,authors{first_name,last_name}"
             }
         });
 
